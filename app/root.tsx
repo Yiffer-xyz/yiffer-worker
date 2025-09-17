@@ -11,12 +11,12 @@ import {
   useMatches,
   useNavigation,
   type LinksFunction,
-  type LoaderFunctionArgs,
   type MetaFunction,
 } from 'react-router';
 import toastCss from 'react-toastify/dist/ReactToastify.css?url';
 import type { Route } from './+types/root';
 import './app.css';
+import './main.css';
 import { ToastContainer } from 'react-toastify';
 import { getUIPrefSession } from './utils/theme.server';
 import { getUserSession } from './utils/auth.server';

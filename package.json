@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "cf-typegen": "wrangler types",
-    "deploy": "yarn run build && wrangler deploy --env production",
+    "deploy": "CLOUDFLARE_ENV=production yarn run build && wrangler deploy",
     "dev": "react-router dev",
     "postinstall": "npm run cf-typegen",
     "preview": "yarn run build && vite preview",
@@ -26,10 +26,12 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.0.12",
     "@react-router/dev": "^7.7.1",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/vite": "^4.1.4",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",

@@ -1,0 +1,73 @@
+.nav-shadowing {
+  box-shadow: 0 0 5px rgb(0 0 0 / 10%);
+}
+.dark .nav-shadowing {
+  box-shadow: none;
+}
+h1 {
+  font-size: 3rem;
+  line-height: 1.2;
+}
+h2 {
+  font-size: 1.75rem;
+}
+h3 {
+  font-size: 1.6rem;
+}
+h4 {
+  font-size: 1.25rem;
+}
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 2.25rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+  h4 {
+    font-size: 1.1rem;
+  }
+}
+
+svg {
+  display: inline-block;
+  margin-bottom: 2px;
+}
+button svg {
+  margin-bottom: 0;
+}
+a {
+  background-size: 0% 1px;
+  transition: background-size 0.2s;
+  background-position: 50% 94%;
+}
+a:hover,
+a:focus {
+  background-size: 100% 1px;
+}
+ul li:before {
+  content: '- ';
+  text-indent: -5px;
+}
+ul.spaced > li {
+  margin-bottom: 0.5rem;
+}
+
+.tooltip {
+  @apply invisible absolute;
+}
+
+.has-tooltip:hover .tooltip {
+  @apply visible z-50;
+}
+
+::selection {
+  background-color: var(--color-blue-trans);
+}
+
+.dark ::selection {
+  background-color: var(--color-theme1-primary-less-trans);
+}
