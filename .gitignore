@@ -16,5 +16,5 @@
 .env*
 !.env.example
 
-.yarn/
+.yarn/install-state.gz
 yarn-error.log
