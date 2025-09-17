@@ -99,8 +99,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   return data;
 }
 
-// TODO: default
-export function AppWithProviders() {
+export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
 
   return (
@@ -110,15 +109,7 @@ export function AppWithProviders() {
   );
 }
 
-// export default function App() {
-//   return (
-//     <>
-//       <Outlet />
-//     </>
-//   );
-// }
-
-export default function App() {
+export function App() {
   const { theme } = useUIPreferences();
   const navigation = useNavigation();
   const isLoading = navigation.state !== 'idle';

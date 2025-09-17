@@ -1,5 +1,5 @@
-import { useFetcher } from "react-router";
-import type { Dispatch, SetStateAction } from "react";
+import { useFetcher } from 'react-router';
+import type { Dispatch, SetStateAction } from 'react';
 import {
   createContext,
   useCallback,
@@ -7,14 +7,14 @@ import {
   useEffect,
   useRef,
   useState,
-} from "react";
-import type { PageDisplay, UIPreferences } from "~/types/types";
+} from 'react';
+import type { PageDisplay, UIPreferences } from '~/types/types';
 
 const defaultUiPref: UIPreferences = {
-  theme: "light",
+  theme: 'light',
   comicCardTags: false,
   comicDisplayOptions: {
-    display: "Fit",
+    display: 'Fit',
     reverseOrder: false,
     clickToToggleDisplay: false,
   },
@@ -35,10 +35,7 @@ type UIPrefProviderProps = {
   children: React.ReactNode;
 };
 
-export function UIPrefProvider({
-  specifiedUIPref,
-  children,
-}: UIPrefProviderProps) {
+export function UIPrefProvider({ specifiedUIPref, children }: UIPrefProviderProps) {
   const [uiPref, setUiPref] = useState<UIPreferences>(() => {
     return specifiedUIPref;
   });
@@ -64,7 +61,7 @@ export function UIPrefProvider({
 
     persistUIPrefRef.current.submit(
       { uiPref: JSON.stringify(uiPref) },
-      { action: "api/set-theme", method: "post" }
+      { action: 'api/set-theme', method: 'POST' }
     );
   }, [uiPref]);
 
@@ -78,16 +75,16 @@ export function UIPrefProvider({
 export function useUIPreferences() {
   const context = useContext(UIPrefContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
 
-  const setTheme = useCallback((newTheme: "light" | "dark") => {
-    context.setUiPref((prev) => ({ ...prev, theme: newTheme }));
+  const setTheme = useCallback((newTheme: 'light' | 'dark') => {
+    context.setUiPref(prev => ({ ...prev, theme: newTheme }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setComicCardTags = useCallback((newComicCardTags: boolean) => {
-    context.setUiPref((prev) => ({ ...prev, comicCardTags: newComicCardTags }));
+    context.setUiPref(prev => ({ ...prev, comicCardTags: newComicCardTags }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -101,14 +98,13 @@ export function useUIPreferences() {
       isReversed?: boolean;
       clickToToggleDisplay?: boolean;
     }) => {
-      context.setUiPref((prev) => ({
+      context.setUiPref(prev => ({
         ...prev,
         comicDisplayOptions: {
           display: display ?? prev.comicDisplayOptions.display,
           reverseOrder: isReversed ?? prev.comicDisplayOptions.reverseOrder,
           clickToToggleDisplay:
-            clickToToggleDisplay ??
-            prev.comicDisplayOptions.clickToToggleDisplay,
+            clickToToggleDisplay ?? prev.comicDisplayOptions.clickToToggleDisplay,
         },
       }));
     },
@@ -126,15 +122,13 @@ export function useUIPreferences() {
   };
 }
 
-export function parseUIPreferences(
-  rawUIPref: string | null | undefined
-): UIPreferences {
+export function parseUIPreferences(rawUIPref: string | null | undefined): UIPreferences {
   if (!rawUIPref) return defaultUiPref;
 
   const newUIPref = { ...defaultUiPref };
   try {
     const parsed = JSON.parse(rawUIPref);
-    if (parsed.theme && (parsed.theme === "light" || parsed.theme === "dark")) {
+    if (parsed.theme && (parsed.theme === 'light' || parsed.theme === 'dark')) {
       newUIPref.theme = parsed.theme;
     }
     if (parsed.comicCardTags !== undefined) {
@@ -143,12 +137,11 @@ export function parseUIPreferences(
     if (parsed.comicDisplayOptions) {
       if (
         parsed.comicDisplayOptions.display &&
-        ["Fit", "Fit height", "Fit width", "Full size", "Tiny"].includes(
+        ['Fit', 'Fit height', 'Fit width', 'Full size', 'Tiny'].includes(
           parsed.comicDisplayOptions.display
         )
       ) {
-        newUIPref.comicDisplayOptions.display =
-          parsed.comicDisplayOptions.display;
+        newUIPref.comicDisplayOptions.display = parsed.comicDisplayOptions.display;
       }
       if (parsed.comicDisplayOptions.reverseOrder !== undefined) {
         newUIPref.comicDisplayOptions.reverseOrder =
@@ -166,18 +159,14 @@ export function parseUIPreferences(
   }
 }
 
-function areUIPrefsDifferent(
-  u1: UIPreferences | null,
-  u2: UIPreferences
-): boolean {
+function areUIPrefsDifferent(u1: UIPreferences | null, u2: UIPreferences): boolean {
   if (!u1) return true;
 
   return (
     u1.theme !== u2.theme ||
     u1.comicCardTags !== u2.comicCardTags ||
     u1.comicDisplayOptions.display !== u2.comicDisplayOptions.display ||
-    u1.comicDisplayOptions.reverseOrder !==
-      u2.comicDisplayOptions.reverseOrder ||
+    u1.comicDisplayOptions.reverseOrder !== u2.comicDisplayOptions.reverseOrder ||
     u1.comicDisplayOptions.clickToToggleDisplay !==
       u2.comicDisplayOptions.clickToToggleDisplay
   );
