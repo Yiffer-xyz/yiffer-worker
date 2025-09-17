@@ -1,0 +1,419 @@
+import {
+  isRouteErrorResponse,
+  Link as RouterLink,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+  useLocation,
+  useMatches,
+  useNavigation,
+  type LinksFunction,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from 'react-router';
+import toastCss from 'react-toastify/dist/ReactToastify.css?url';
+import type { Route } from './+types/root';
+import './app.css';
+import { ToastContainer } from 'react-toastify';
+import { getUIPrefSession } from './utils/theme.server';
+import { getUserSession } from './utils/auth.server';
+import posthog from 'posthog-js';
+import { getUserByField } from './route-funcs/get-user';
+import { processApiError } from './utils/request-helpers';
+import { UIPrefProvider, useUIPreferences } from './utils/theme-provider';
+import type { UserSession } from './types/types';
+import { useEffect, useMemo } from 'react';
+import * as gtag from './utils/gtag.client';
+import { useAuthRedirect } from './utils/general';
+import Link from './ui-components/Link';
+import {
+  RiAccountCircleLine,
+  RiAddLine,
+  RiLoginBoxLine,
+  RiSettings3Line,
+} from 'react-icons/ri';
+import UserMessagesIndicator from './page-components/UserMessagesIndicator';
+import UserNotifications from './page-components/UserNotifications';
+import { MdLightbulbOutline } from 'react-icons/md';
+
+// export const links: Route.LinksFunction = () => [
+//   { rel: "preconnect", href: "https://fonts.googleapis.com" },
+//   {
+//     rel: "preconnect",
+//     href: "https://fonts.gstatic.com",
+//     crossOrigin: "anonymous",
+//   },
+//   {
+//     rel: "stylesheet",
+//     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+//   },
+// ];
+
+export const links: LinksFunction = () => [
+  {
+    rel: 'icon',
+    href: '/favicon.png',
+    type: 'image/png',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Mulish:wght@300;600&display=swap',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Shrikhand&text=Yiffer.xyz&display=swap',
+  },
+  { rel: 'stylesheet', href: toastCss },
+];
+
+export const meta: MetaFunction = () => [
+  { title: `Yiffer.xyz` },
+  { property: 'og:title', content: `Yiffer.xyz` },
+  { name: 'description', content: 'This Yiffer yoffer yiffer' },
+];
+
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const uiPrefSession = await getUIPrefSession(request);
+
+  const userSession = await getUserSession(
+    request,
+    context.cloudflare.env.JWT_CONFIG_STR
+  );
+
+  let isMissingEmail = !!(userSession && !userSession.email);
+  // Double check by fetching from db, not just the cookie.
+  if (isMissingEmail && userSession?.userId) {
+    const userRes = await getUserByField({
+      db: context.cloudflare.env.DB,
+      field: 'id',
+      value: userSession?.userId,
+    });
+    if (userRes.err) return processApiError('Error in root', userRes.err);
+    if (!userRes.notFound && userRes.result.email) {
+      isMissingEmail = false;
+    }
+  }
+
+  const gaTrackingId = context.cloudflare.env.GA_TRACKING_ID;
+
+  const data = {
+    uiPref: uiPrefSession.getUiPref(),
+    user: userSession,
+    gaTrackingId,
+    posthogApiKey: context.cloudflare.env.POSTHOG_API_KEY,
+    posthogHost: context.cloudflare.env.POSTHOG_HOST,
+    isMissingEmail,
+    pagesPath: context.cloudflare.env.PAGES_PATH,
+  };
+
+  return data;
+}
+
+// TODO: default
+export function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <UIPrefProvider specifiedUIPref={data.uiPref}>
+      <App />
+    </UIPrefProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <>
+      <Outlet />
+    </>
+  );
+}
+
+// export default function App() {
+//   const { theme } = useUIPreferences();
+//   const navigation = useNavigation();
+//   const isLoading = navigation.state !== 'idle';
+//   const data = useLoaderData<typeof loader>();
+
+//   return (
+//     <>
+//       <PosthogInit
+//         apiKey={data.posthogApiKey}
+//         host={data.posthogHost}
+//         userSession={data.user}
+//       />
+
+//       <html lang="en" className={theme}>
+//         <head>
+//           <meta charSet="utf-8" />
+//           <meta name="viewport" content="width=device-width, initial-scale=1" />
+//           <Meta />
+//           <Links />
+//         </head>
+//         <body
+//           className={`bg-bg dark:bg-bg-dark text-text-light dark:text-text-dark ${
+//             isLoading ? 'opacity-70 dark:opacity-80' : ''
+//           }`}
+//         >
+//           {!data.gaTrackingId ? null : (
+//             <>
+//               <script
+//                 async
+//                 src={`https://www.googletagmanager.com/gtag/js?id=${data.gaTrackingId}`}
+//               />
+//               <script
+//                 async
+//                 id="gtag-init"
+//                 dangerouslySetInnerHTML={{
+//                   __html: `
+//                 window.dataLayer = window.dataLayer || [];
+//                 function gtag(){dataLayer.push(arguments);}
+//                 gtag('js', new Date());
+
+//                 gtag('config', '${data.gaTrackingId}', {
+//                   page_path: window.location.pathname,
+//                 });
+//               `,
+//                 }}
+//               />
+//             </>
+//           )}
+
+//           <Layout
+//             user={data.user}
+//             gaTrackingId={data.gaTrackingId}
+//             isMissingEmail={data.isMissingEmail}
+//             pagesPath={data.pagesPath}
+//           >
+//             <Outlet />
+//           </Layout>
+//           <ScrollRestoration />
+//           <ToastContainer />
+//           <Scripts />
+//         </body>
+//       </html>
+//     </>
+//   );
+// }
+
+// function Layout({
+//   user,
+//   excludeLogin = false,
+//   gaTrackingId,
+//   isMissingEmail,
+//   pagesPath,
+//   children,
+// }: {
+//   user: UserSession | null;
+//   excludeLogin?: boolean;
+//   gaTrackingId?: string;
+//   isMissingEmail?: boolean;
+//   pagesPath: string;
+//   children: React.ReactNode;
+// }) {
+//   const { theme, setTheme } = useUIPreferences();
+//   const matches = useMatches();
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     if (gaTrackingId?.length) {
+//       gtag.pageview(location.pathname, gaTrackingId);
+//     }
+//   }, [location, gaTrackingId]);
+
+//   const isLoggedIn = !!user;
+//   const isMod = user?.userType === 'admin' || user?.userType === 'moderator';
+//   const darkNavLinkColorStyle = 'dark:text-blue-strong-300';
+//   const navLinkStyle = `text-gray-200 font-semibold bg-none text-sm ${darkNavLinkColorStyle}`;
+
+//   const isInAdminDashboard = useMemo(() => {
+//     return matches.some(
+//       match => match.pathname.includes('/admin/') || match.pathname.endsWith('/admin')
+//     );
+//   }, [matches]);
+
+//   const { redirectSetOnLoginNavStr } = useAuthRedirect();
+
+//   return (
+//     <>
+//       {isMissingEmail && <ForceSetEmail />}
+
+//       <nav
+//         className={`flex bg-linear-to-r from-theme1-primary to-theme2-primary dark:from-bg-dark dark:to-bg-dark
+//           px-4 py-1.5 nav-shadowing justify-between mb-4 text-gray-200 w-full z-20
+//           ${isInAdminDashboard ? 'fixed lg:dark:border-b-3 lg:dark:border-b-gray-400' : ''}`}
+//       >
+//         <div className="flex items-center justify-between mx-auto grow max-w-full lg:max-w-80p">
+//           <div className="flex gap-3 sm:gap-5 items-center">
+//             <RouterLink
+//               to="/"
+//               className={`text-gray-200 hidden lg:block bg-none mr-1 ${darkNavLinkColorStyle}`}
+//               style={{
+//                 fontFamily: 'Shrikhand,cursive',
+//                 fontSize: '1.25rem',
+//                 fontWeight: 400,
+//               }}
+//             >
+//               Yiffer.xyz
+//             </RouterLink>
+//             <RouterLink
+//               to="/"
+//               className={`text-gray-200 block lg:hidden bg-none mr-1 ${darkNavLinkColorStyle}`}
+//               style={{
+//                 fontFamily: 'Shrikhand,cursive',
+//                 fontSize: '1.25rem',
+//                 fontWeight: 400,
+//               }}
+//             >
+//               Y
+//             </RouterLink>
+//             <>
+//               {isLoggedIn && (
+//                 <Link
+//                   href="/me"
+//                   className={navLinkStyle}
+//                   iconMargin={2}
+//                   text="Me"
+//                   Icon={RiAccountCircleLine}
+//                 />
+//               )}
+//               {isLoggedIn && isMod && (
+//                 <Link
+//                   href="/admin"
+//                   className={navLinkStyle}
+//                   iconMargin={2}
+//                   text="Mod"
+//                   Icon={RiSettings3Line}
+//                 />
+//               )}
+//               <Link
+//                 href="/contribute"
+//                 className={`${navLinkStyle} -ml-1`}
+//                 iconMargin={2}
+//                 text="Contribute"
+//                 Icon={RiAddLine}
+//               />
+//             </>
+//             {!isLoggedIn && !excludeLogin && (
+//               <RouterLink
+//                 to={`/login${redirectSetOnLoginNavStr}`}
+//                 className={navLinkStyle}
+//               >
+//                 <RiLoginBoxLine className="inline-block" />
+//                 Log in
+//               </RouterLink>
+//             )}
+//           </div>
+
+//           <div className="flex flex-row gap-3 mb-1 justify-center items-center">
+//             {isLoggedIn && <UserMessagesIndicator />}
+
+//             <UserNotifications pagesPath={pagesPath} isLoggedIn={isLoggedIn} />
+
+//             <button
+//               onClick={() => {
+//                 const newTheme = theme === 'light' ? 'dark' : 'light';
+//                 setTheme(newTheme);
+//                 posthog.capture('Color theme changed', { theme: newTheme });
+//               }}
+//               className="text-gray-200 cursor-pointer dark:text-blue-strong-300"
+//             >
+//               <MdLightbulbOutline />
+//             </button>
+//           </div>
+//         </div>
+//       </nav>
+
+//       {children}
+//     </>
+//   );
+// }
+
+// export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+//   let message = 'Oops!';
+//   let details = 'An unexpected error occurred.';
+//   let stack: string | undefined;
+
+//   if (isRouteErrorResponse(error)) {
+//     message = error.status === 404 ? '404' : 'Error';
+//     details =
+//       error.status === 404
+//         ? 'The requested page could not be found.'
+//         : error.statusText || details;
+//   } else if (import.meta.env.DEV && error && error instanceof Error) {
+//     details = error.message;
+//     stack = error.stack;
+//   }
+
+//   return (
+//     <main className="pt-16 p-4 container mx-auto">
+//       <h1>{message}</h1>
+//       <p>{details}</p>
+//       {stack && (
+//         <pre className="w-full p-4 overflow-x-auto">
+//           <code>{stack}</code>
+//         </pre>
+//       )}
+//     </main>
+//   );
+// }
+
+// function PosthogInit({
+//   apiKey,
+//   host,
+//   userSession,
+// }: {
+//   apiKey: string;
+//   host: string;
+//   userSession: UserSession | null;
+// }) {
+//   useEffect(() => {
+//     if (!apiKey || !host) return;
+//     posthog.init(apiKey, {
+//       api_host: host,
+//       person_profiles: 'always',
+//       autocapture: false,
+//     });
+//     if (userSession) {
+//       posthog.identify(userSession.userId.toString(), {
+//         username: userSession.username,
+//       });
+//     }
+//   }, [apiKey, host, userSession]);
+
+//   return null;
+// }
+
+// export function ForceSetEmail() {
+//   const matches = useMatches();
+//   const isOnAccountPage = useMemo(() => {
+//     return matches.some(
+//       match => match.pathname.includes('/me') || match.pathname.includes('change-email')
+//     );
+//   }, [matches]);
+
+//   useEffect(() => {
+//     posthog.capture('Force email page viewed');
+//   }, []);
+
+//   if (isOnAccountPage) return null;
+
+//   return (
+//     <div className="p-8 fixed top-0 left-0 w-full h-screen flex items-center justify-center bg-white dark:bg-bg-dark z-50">
+//       <div className="flex flex-col gap-2">
+//         <h2>Missing email</h2>
+//         <p>Your account needs an associated email address.</p>
+//         <p>Emails have been required for new accounts since 2021.</p>
+//         <p>
+//           We do not send any spam - all you need to do is add an email and click the sent
+//           verification link.
+//         </p>
+//         <p>Follow the link below to set your email.</p>
+//         <p>Accounts without an email will be disabled some time in 2025.</p>
+//         <Link href="/me/account" text="Add email" showRightArrow />
+//       </div>
+//     </div>
+//   );
+// }
