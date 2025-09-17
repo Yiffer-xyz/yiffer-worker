@@ -12,6 +12,9 @@ const apiRoutes = [
   route('/api/submit-ad.ts', './routes/api/submit-ad.ts'),
 ] satisfies RouteConfig;
 
-const pageRoutes = [index('routes/pages/home.tsx')] satisfies RouteConfig;
+const pageRoutes = [
+  index('routes/pages/home.tsx'),
+  route('/me', 'routes/pages/me-page.tsx'),
+] satisfies RouteConfig;
 
 export default [...pageRoutes, ...apiRoutes] satisfies RouteConfig;
