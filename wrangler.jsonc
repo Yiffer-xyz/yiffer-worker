@@ -38,16 +38,6 @@
       "database_name": "yiffer-dev-2",
       "database_id": "e9c3c06e-749e-4fe6-8934-67ce5377132e",
     },
-    {
-      "binding": "DB_DEV",
-      "database_name": "yiffer-dev",
-      "database_id": "6c6d170a-0c3a-4c97-b402-658f30e7501a",
-    },
-    {
-      "binding": "DB_PROD",
-      "database_name": "yiffer-prod",
-      "database_id": "b76ac518-5ce3-48ec-80cb-72e1f6f60b98",
-    },
   ],
   "r2_buckets": [
     {
@@ -55,6 +45,20 @@
       "bucket_name": "yiffer-test-2",
     },
   ],
+  "env": {
+    "production": {
+      "vars": {
+        "IS_LOCAL_DEV": "false",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "yiffer-prod",
+          "database_id": "b76ac518-5ce3-48ec-80cb-72e1f6f60b98",
+        },
+      ],
+    },
+  },
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
