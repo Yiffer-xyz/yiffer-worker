@@ -175,6 +175,7 @@ export function debounce<F extends (...args: any[]) => any>(
   func: F,
   wait: number
 ): (...args: Parameters<F>) => void {
+  // @ts-ignore
   let timeoutId: NodeJS.Timeout | null = null;
 
   return (...args: Parameters<F>) => {

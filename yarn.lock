@@ -403,6 +403,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cloudflare/workers-types@npm:^4.20250918.0":
+  version: 4.20250918.0
+  resolution: "@cloudflare/workers-types@npm:4.20250918.0"
+  checksum: 10c0/34fbf20cd5739300081e38d5730b981f7db412075bb839aad1160f5bea3101ad60f0eaa9ef1b61e5f5054ab29f5c3b3f51c1ae6a641add11029af5568ffe6339
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:0.8.1":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -1630,6 +1637,13 @@ __metadata:
   peerDependencies:
     "@types/react": ^19.0.0
   checksum: 10c0/34c8dda86c1590b3ef0e7ecd38f9663a66ba2dd69113ba74fb0adc36b83bbfb8c94c1487a2505282a5f7e5e000d2ebf36f4c0fd41b3b672f5178fd1d4f1f8f58
+  languageName: node
+  linkType: hard
+
+"@types/react-select-country-list@npm:^2":
+  version: 2.2.3
+  resolution: "@types/react-select-country-list@npm:2.2.3"
+  checksum: 10c0/ae9321aaee104a448822f9631c152bc9fe5e7651bf6492c9dc9b8da1baa0005b05e9260ac28fb85133d7c8e2c8efca84a03396d2216ef2f024d119d04dad6922
   languageName: node
   linkType: hard
 
@@ -3142,6 +3156,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-select-country-list@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "react-select-country-list@npm:2.2.3"
+  checksum: 10c0/6a005d33c28b535bcec1b801974c9da984b75c5570fd5454b4330a273c957911aca878ddc11dd8836e293d36797e4f0c09c48a05a7182799a58203d2168c6655
+  languageName: node
+  linkType: hard
+
 "react-toastify@npm:^11.0.5":
   version: 11.0.5
   resolution: "react-toastify@npm:11.0.5"
@@ -4031,6 +4052,7 @@ __metadata:
   resolution: "yworker@workspace:."
   dependencies:
     "@cloudflare/vite-plugin": "npm:^1.0.12"
+    "@cloudflare/workers-types": "npm:^4.20250918.0"
     "@react-router/dev": "npm:^7.7.1"
     "@tailwindcss/postcss": "npm:^4.1.13"
     "@tailwindcss/vite": "npm:^4.1.4"
@@ -4038,6 +4060,7 @@ __metadata:
     "@types/node": "npm:^20"
     "@types/react": "npm:^19.1.2"
     "@types/react-dom": "npm:^19.1.2"
+    "@types/react-select-country-list": "npm:^2"
     bcryptjs: "npm:^3.0.2"
     date-fns: "npm:^4.1.0"
     isbot: "npm:^5.1.27"
@@ -4046,6 +4069,7 @@ __metadata:
     react-dom: "npm:^19.1.0"
     react-icons: "npm:^5.5.0"
     react-router: "npm:^7.7.1"
+    react-select-country-list: "npm:^2.2.3"
     react-toastify: "npm:^11.0.5"
     tailwind-scrollbar: "npm:^4.0.2"
     tailwindcss: "npm:^4.1.4"
